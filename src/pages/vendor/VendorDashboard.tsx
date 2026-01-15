@@ -98,9 +98,32 @@ const VendorHome = () => {
   const handleCreateInvoice = async () => {
     if (!vendor || !amountInr) return;
     
+    // Client-side validation (defense-in-depth, server also validates via CHECK constraints)
+    const amount = parseFloat(amountInr);
+    
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: 'Invalid Amount',
+        description: 'Amount must be a positive number.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (amount > 1000000) {
+      toast({
+        title: 'Amount Too Large',
+        description: 'Maximum invoice amount is ₹10,00,000.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Validate note length (server constraint: 500 chars max)
+    const sanitizedNote = note?.trim().slice(0, 500) || null;
+    
     setCreating(true);
     try {
-      const amount = parseFloat(amountInr);
       const invoiceId = generateInvoiceId();
       const amountBch = inrToBch(amount);
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
@@ -112,8 +135,8 @@ const VendorHome = () => {
           vendor_id: vendor.id,
           amount_inr: amount,
           amount_bch: amountBch,
-          note: note || null,
-          student_id: studentId || null,
+          note: sanitizedNote,
+          student_id: studentId?.trim() || null,
           bch_address: vendor.bch_address,
           expires_at: expiresAt,
         })
@@ -129,7 +152,7 @@ const VendorHome = () => {
         amountBCH: amountBch,
         amountINR: amount,
         bchAddress: vendor.bch_address,
-        note: note || undefined,
+        note: sanitizedNote || undefined,
       });
 
       setCurrentQrData(qrData);
@@ -146,7 +169,6 @@ const VendorHome = () => {
         description: `Invoice ${invoiceId} is ready for scanning.`,
       });
     } catch (error) {
-      console.error('Error creating invoice:', error);
       toast({
         title: 'Error',
         description: 'Failed to create invoice. Please try again.',
