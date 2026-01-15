@@ -81,6 +81,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
+      // Role is passed via user metadata and assigned by database trigger
+      // This prevents client-side role manipulation
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -111,17 +113,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Profile creation error:', profileError);
       }
 
-      // Create user role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role: userRole,
-        });
-
-      if (roleError) {
-        console.error('Role creation error:', roleError);
-      }
+      // Role is now assigned automatically by database trigger on auth.users insert
+      // No client-side role insertion needed - prevents privilege escalation
 
       // If vendor, create vendor record
       if (userRole === 'vendor' && additionalData) {
