@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { QrCode, Gift, History, Wallet, Loader2, Receipt } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { logger } from '@/lib/logger';
 
 interface Transaction {
   id: string;
@@ -66,7 +67,7 @@ const StudentDashboard = () => {
         setTotalRewards(total);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      logger.error('Error fetching student data', error);
     } finally {
       setLoading(false);
     }
