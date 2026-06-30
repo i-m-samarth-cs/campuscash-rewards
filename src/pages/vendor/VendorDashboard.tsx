@@ -170,6 +170,7 @@ const VendorHome = () => {
         description: `Invoice ${invoiceId} is ready for scanning.`,
       });
     } catch (error) {
+      logger.error('Invoice creation error', error);
       toast({
         title: 'Error',
         description: 'Failed to create invoice. Please try again.',
