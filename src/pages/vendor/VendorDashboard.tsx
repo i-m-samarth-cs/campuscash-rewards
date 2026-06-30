@@ -16,6 +16,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Plus, Receipt, TrendingUp, Clock, Loader2, LayoutDashboard, History, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { inrToBch, generateInvoiceId } from '@/lib/constants';
+import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 
 interface Vendor {
@@ -89,7 +90,7 @@ const VendorHome = () => {
         if (invoiceData) setInvoices(invoiceData);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      logger.error('Error fetching vendor data', error);
     } finally {
       setLoading(false);
     }
